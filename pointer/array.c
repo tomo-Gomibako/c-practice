@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 
 int reduce(int *arr, size_t n, int (*f)(int, int), int initial) {
 	int ret = f(initial, arr[0]);
@@ -8,8 +9,32 @@ int reduce(int *arr, size_t n, int (*f)(int, int), int initial) {
 	return ret;
 }
 
+int *map(int *arr, size_t n, int (*f)(int)) {
+	// ローカル変数のポインタをreturnしてはいけない
+	// mallocでメモリを確保して返す
+	int *ret = malloc(sizeof(int) * n);
+	for(int i = 0; i < n; i++) {
+		ret[i] = f(arr[i]);
+	}
+	return ret;
+}
+
+int print_array(int *arr, size_t n) {
+	for(int i = 0; i < n; i++) {
+		if(i != 0) {
+			printf(", ");
+		}
+		printf("%d", arr[i]);
+	}
+	printf("\n");
+}
+
 int add(int a, int b) {
 	return a + b;
+}
+
+int square(int a) {
+	return a * a;
 }
 
 int main() {
@@ -21,6 +46,12 @@ int main() {
 	}
 
 	printf("sum: %d\n", reduce(arr, N, add, 0));
+	printf("mapped: ");
+
+	int *mapped = map(arr, N, square);
+	print_array(mapped, N);
+	// mallocで確保したメモリは使い終わったら必ずfree()で解放する
+	free(mapped);
 
 	return 0;
 }
